@@ -1,0 +1,8 @@
+fastapi[all]
+uvicorn[standard]
+pymongo[srv]
+motor
+openai
+pinecone-client
+python-dotenv
+pydantic
