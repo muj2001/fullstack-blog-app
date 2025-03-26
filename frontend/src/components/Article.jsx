@@ -33,9 +33,9 @@ export default function Article() {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="!mx-auto !pt-4 max-w-2xl border-t border-gray-200 lg:!mx-0 lg:max-w-none">
-          <div className="flex justify-between">
-            <h1 className="mt-3 text-4xl font-semibold text-gray-900 group-hover:text-gray-600">
+        <div className="!mx-auto !pt-4 max-w-2xl border-t border-gray-200 lg:!mx-0 lg:max-w-none !px-12">
+          <div className="flex justify-between items-center">
+            <h1 className="font-thin !mt-6 text-6xl text-gray-900 group-hover:text-gray-600">
               {article.title}
             </h1>
             <button
@@ -45,7 +45,7 @@ export default function Article() {
               Back
             </button>
           </div>
-          <p className="!mt-4">{article.content}</p>
+          <p className="!mt-8">{article.content}</p>
         </div>
       )}
     </>

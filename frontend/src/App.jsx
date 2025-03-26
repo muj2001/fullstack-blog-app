@@ -4,7 +4,12 @@ import AppContainer from "./components/AppContainer";
 import ArticleList from "./components/ArticleList";
 import Article from "./components/Article";
 import ArticleForm from "./components/ArticleForm";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 
 function App() {
   return (
@@ -16,6 +21,7 @@ function App() {
           <Route exact path="/articles/:id" element={<Article />} />
           <Route exact path="/articles/:id/edit" element={<ArticleForm />} />
           <Route exact path="/articles/new" element={<ArticleForm />} />
+          <Route path="*" element={<Navigate to="/articles/" replace />} />
         </Routes>
       </Router>
     </AppContainer>

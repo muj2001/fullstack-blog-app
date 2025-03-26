@@ -5,7 +5,7 @@ import Button from "./Button";
 export default function ArticleCard({ article, onSelect }) {
   return (
     <>
-      <article className="flex max-w-xl flex-col items-start justify-between">
+      <article className="flex max-w-xl flex-col items-start justify-between border-gray-200 border-1 rounded-lg !px-6 !py-6 shadow-xl">
         <div className="flex justify-between self-stretch items-center">
           <h3 className="mt-3 text-2xl font-semibold text-gray-900 group-hover:text-gray-600">
             {article.title}
