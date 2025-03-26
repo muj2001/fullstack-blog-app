@@ -22,7 +22,7 @@ export default function Article() {
     }
 
     fetchArticle();
-  }, []);
+  }, [id]);
 
   function handleBack() {
     navigate("/articles/");

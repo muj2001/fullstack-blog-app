@@ -6,3 +6,4 @@ openai
 pinecone-client
 python-dotenv
 pydantic
+os

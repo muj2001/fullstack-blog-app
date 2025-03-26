@@ -3,7 +3,11 @@ from pydantic import BaseModel
 from bson import ObjectId
 from app.database import articles_collection
 from fastapi.middleware.cors import CORSMiddleware
+import openai
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = FastAPI()
 

@@ -26,7 +26,7 @@ export default function ArticleForm() {
     if (id) {
       fetchArticle();
     }
-  }, []);
+  }, [id]);
 
   function handleBack() {
     navigate("/articles/");
