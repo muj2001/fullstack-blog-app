@@ -2,9 +2,23 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from bson import ObjectId
 from app.database import articles_collection
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",  # React Vite frontend
+    "http://127.0.0.1:5173",  # Alternative localhost
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allow specific origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Pydantic model
 class Article(BaseModel):
@@ -44,3 +58,7 @@ async def delete_article(id: str):
     if deleted.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Article not found")
     return {"message": "Article deleted successfully"}
+
+@app.post("/articles/{id}/summarize")
+async def get_article_summary(article: Article):
+    return {"message": "summary"}
