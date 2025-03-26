@@ -2,7 +2,7 @@ import editIcon from "../assets/icons/edit_square.svg";
 import deleteIcon from "../assets/icons/delete_icon.svg";
 import Button from "./Button";
 
-export default function ArticleCard({ article, onSelect }) {
+export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
   return (
     <>
       <article className="flex max-w-xl flex-col items-start justify-between border-gray-200 border-1 rounded-lg !px-6 !py-6 shadow-xl">
@@ -15,12 +15,14 @@ export default function ArticleCard({ article, onSelect }) {
               <img
                 src={editIcon}
                 className="hover:bg-gray-300 !py-2 !px-2 rounded-md duration-75"
+                onClick={() => onEdit(article.id)}
               />
             </button>
             <button>
               <img
                 src={deleteIcon}
                 className="hover:bg-gray-300 !py-2 !px-2 rounded-md duration-75"
+                onClick={() => onDelete(article.id)}
               />
             </button>
           </div>
