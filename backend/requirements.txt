@@ -7,3 +7,4 @@ pinecone-client
 python-dotenv
 pydantic
 os
+dotenv

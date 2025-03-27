@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from "./Loader";
+import FormattedContent from "./FormattedContent";
 
 export default function Article() {
-  const [article, setArticle] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [article, setArticle] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -45,7 +46,10 @@ export default function Article() {
               Back
             </button>
           </div>
-          <p className="!mt-8">{article.content}</p>
+          {/* <p className="!mt-8">{article.content}</p> */}
+          <div>
+            <FormattedContent content={article.content} />
+          </div>
         </div>
       )}
     </>

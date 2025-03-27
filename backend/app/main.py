@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai.api_key = OPENAI_API_KEY
+
+
 app = FastAPI()
 
 origins = [
@@ -65,4 +69,19 @@ async def delete_article(id: str):
 
 @app.post("/articles/{id}/summarize")
 async def get_article_summary(article: Article):
-    return {"message": "summary"}
+    article = article.dict()
+    messages = [
+        {"role": "user",
+         "content": """As a content summarizer, generate the a short summary from the content provided to you' \n"""},
+    ]
+    messages.append({
+            "role": "user",
+            "content": f"{article["content"]}"
+        }
+    )
+    completion = openai.ChatCompletion.create(
+        model="gpt-4o",
+        messages=messages
+    )
+    reply = completion.choices[0].message.content
+    return {reply}

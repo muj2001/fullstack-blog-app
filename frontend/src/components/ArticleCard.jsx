@@ -5,7 +5,7 @@ import Button from "./Button";
 export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
   return (
     <>
-      <article className="flex max-w-xl flex-col items-start justify-between border-gray-200 border-1 rounded-lg !px-6 !py-6 shadow-xl">
+      <article className="flex max-w-xl flex-col items-start justify-between border-gray-200 border-1 rounded-lg !px-6 !py-6 shadow-xl gap-y-8">
         <div className="flex justify-between self-stretch items-center">
           <h3 className="mt-3 text-2xl font-semibold text-gray-900 group-hover:text-gray-600">
             {article.title}
@@ -27,9 +27,6 @@ export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
             </button>
           </div>
         </div>
-        <p className="mt-5 line-clamp-2 text-sm/6 text-gra  y-600">
-          {article.content}
-        </p>
         <div className="flex gap-x-3">
           <button className="bg-teal-500 !px-4 !py-2 text-white rounded-xl !mt-2 duration-75 hover:bg-teal-800">
             Summary
