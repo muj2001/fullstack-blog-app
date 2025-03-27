@@ -92,17 +92,12 @@ export default function ArticleForm() {
               }}
             ></input>
             <div className="flex gap-x-4 items-center">
-              <div class="mx-auto flex items-center justify-center">
-                <div class="group relative cursor-pointer py-2">
-                  <div class="flex items-center justify-between space-x-5">
-                    <a
-                      class="menu-hover my-2 py-2 text-base font-medium text-black lg:mx-4"
-                      onClick=""
-                    >
-                      <img src={questionIcon} />
-                    </a>
+              <div className="mx-auto flex items-center justify-center">
+                <div className="group relative cursor-pointer py-2">
+                  <div className="flex items-center justify-between space-x-5">
+                    <img src={questionIcon} />
                   </div>
-                  <div class="invisible absolute z-50 !p-6 !pl-10 w-2xs bg-gray-100 text-gray-800 shadow-xl group-hover:visible">
+                  <div className="invisible absolute z-50 !p-6 !pl-10 w-2xs bg-gray-100 text-gray-800 shadow-xl group-hover:visible">
                     <strong>Help</strong>
                     <ul className="list-disc">
                       <li>To use subheadings, prefix your line with: "# ".</li>
