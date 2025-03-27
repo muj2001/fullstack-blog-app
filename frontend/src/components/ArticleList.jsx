@@ -6,40 +6,51 @@ import ArticleCard from "./ArticleCard";
 import Loader from "./Loader";
 import UIBar from "./UIBar";
 import CreateArticle from "./CreateArticle";
+import ErrorComponent from "./ErrorComponent";
 
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const controller = new AbortController();
     async function fetchArticles() {
+      setError("");
       setIsLoading(true);
-      let url = "";
-      if (query) {
-        url = `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
-        }/articles/search/?query=${query}`;
-      } else {
-        url = `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
-        }/articles/`;
-      }
-      const res = await fetch(url, { signal: controller.signal });
-      const data = await res.json();
-      if (query) {
-        setArticles(() => {
-          return data.results.map((result) => {
-            return { ...result, id: result.id };
+      console.log("Here");
+      let res = null;
+      try {
+        let url = "";
+        if (query) {
+          url = `http://${import.meta.env.VITE_HOST}:${
+            import.meta.env.VITE_PORT
+          }/articles/search/?query=${query}`;
+          res = await fetch(url, { signal: controller.signal });
+        } else {
+          url = `http://${import.meta.env.VITE_HOST}:${
+            import.meta.env.VITE_PORT
+          }/articles/`;
+          res = await fetch(url);
+        }
+        const data = await res.json();
+        if (query) {
+          setArticles(() => {
+            return data.results.map((result) => {
+              return { ...result };
+            });
           });
-        });
-      } else {
-        setArticles(data);
+        } else {
+          setArticles(data);
+        }
+        console.log(data);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setIsLoading(false);
       }
-      console.log(data);
-      setIsLoading(false);
     }
 
     fetchArticles();
@@ -61,6 +72,30 @@ export default function ArticleList() {
     navigate(`/articles/${id}/edit`);
   }
 
+  function handleEmbed(id) {
+    async function postEmbed() {
+      console.log("HERE");
+      const res = await fetch(
+        `http://${import.meta.env.VITE_HOST}:${
+          import.meta.env.VITE_PORT
+        }/articles/${id}/embed`,
+        {
+          method: "POST",
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setArticles((articles) =>
+          articles.map((article) =>
+            article["_id"] === data["_id"] ? data : article
+          )
+        );
+      }
+    }
+
+    postEmbed();
+  }
+
   function handleDelete(id) {
     console.log(id);
     async function deleteArticle() {
@@ -75,7 +110,7 @@ export default function ArticleList() {
       console.log(res);
       if (res.ok) {
         setArticles((articles) => {
-          return articles.filter((article) => article.id !== id);
+          return articles.filter((article) => article["_id"] !== id);
         });
       }
     }
@@ -88,6 +123,8 @@ export default function ArticleList() {
       <UIBar onQueryChange={handleQueryChange} />
       {isLoading ? (
         <Loader />
+      ) : error ? (
+        <ErrorComponent message={error} />
       ) : (
         <>
           <div className="!mx-auto min-h-fit grid max-w-2xl grid-cols-3 gap-x-8 gap-y-16 border-t border-gray-200 !pb-8 !pt-4 lg:!mx-0 lg:max-w-none">
@@ -95,10 +132,11 @@ export default function ArticleList() {
             {articles.map((article) => (
               <ArticleCard
                 article={article}
-                key={article.id}
+                key={article["_id"]}
                 onSelect={handleSelect}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onEmbed={handleEmbed}
               />
             ))}
           </div>

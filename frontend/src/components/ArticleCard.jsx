@@ -4,7 +4,13 @@ import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState } from "react";
 import Loader from "./Loader";
 
-export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
+export default function ArticleCard({
+  article,
+  onSelect,
+  onEdit,
+  onDelete,
+  onEmbed,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -60,22 +66,32 @@ export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
               <img
                 src={editIcon}
                 className="hover:bg-gray-300 !py-2 !px-2 rounded-md duration-75"
-                onClick={() => onEdit(article.id)}
+                onClick={() => onEdit(article["_id"])}
               />
             </button>
             <button>
               <img
                 src={deleteIcon}
                 className="hover:bg-gray-300 !py-2 !px-2 rounded-md duration-75"
-                onClick={() => onDelete(article.id)}
+                onClick={() => onDelete(article["_id"])}
               />
             </button>
           </div>
         </div>
         <div className="flex gap-x-3">
+          <button
+            onClick={() => {
+              onEmbed(article["_id"]);
+            }}
+            className={`${
+              article.embed ? "hidden" : ""
+            } bg-teal-500 !px-4 !py-2 text-white rounded-xl !mt-2 duration-75 hover:bg-teal-800`}
+          >
+            Embed
+          </button>
           <Button
             onClick={() => {
-              open(article.id);
+              open(article["_id"]);
             }}
             className="bg-teal-500 !px-4 !py-2 text-white rounded-xl !mt-2 duration-75 hover:bg-teal-800"
           >
@@ -83,7 +99,7 @@ export default function ArticleCard({ article, onSelect, onEdit, onDelete }) {
           </Button>
           <button
             onClick={() => {
-              onSelect(article.id);
+              onSelect(article["_id"]);
             }}
             className="bg-teal-500 !px-4 !py-2 text-white rounded-xl !mt-2 duration-75 hover:bg-teal-800"
           >

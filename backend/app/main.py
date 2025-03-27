@@ -54,6 +54,7 @@ app.add_middleware(
 class Article(BaseModel):
     title: str
     content: str
+    embed: bool = False
 
 class ArticleEmbeddingRequest(BaseModel):
     id: str
@@ -61,19 +62,19 @@ class ArticleEmbeddingRequest(BaseModel):
 @app.get("/articles/")
 async def get_articles():
     articles = await articles_collection.find().to_list(100)
-    return [{"id": str(article["_id"]), "title": article["title"], "content": article["content"]} for article in articles]
+    return [{"_id": str(article["_id"]), "title": article["title"], "content": article["content"], "embed": article["embed"]} for article in articles]
 
 @app.get("/articles/{id}")
 async def get_article(id: str):
     article = await articles_collection.find_one({"_id": ObjectId(id)})
     if article:
-        return {"id": str(article["_id"]), "title": article["title"], "content": article["content"]}
+        return {"_id": str(article["_id"]), "title": article["title"], "content": article["content"]}
     raise HTTPException(status_code=404, detail="Article not found")
 
 @app.post("/articles/")
 async def create_article(article: Article):
     new_article = await articles_collection.insert_one(article.dict())
-    return {"id": str(new_article.inserted_id), **article.dict()}
+    return {"_id": str(new_article.inserted_id), **article.dict()}
 
 @app.put("/articles/{id}")
 async def update_article(id: str, article: Article):
@@ -125,8 +126,10 @@ async def generate_embeddings(id: str):
     if not article:
         return {"error": "Article not found"}
 
+    article["embed"] = True
     # Convert ObjectId to a string
-    article["_id"] = str(article["_id"])
+    # article["_id"] = str(article["_id"])
+
 
     response = client.embeddings.create(
         model="text-embedding-ada-002",
@@ -136,7 +139,15 @@ async def generate_embeddings(id: str):
     embedding = response.data[0].embedding
     index.upsert([(id, embedding)])
 
-    return response
+    await articles_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": article}
+    )
+
+
+    article["_id"] = str(article["_id"])
+
+    return article
 
 @app.get("/articles/search/")
 async def search_article(query: str):
