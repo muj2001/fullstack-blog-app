@@ -102,8 +102,17 @@ export default function ArticleForm() {
                       <img src={questionIcon} />
                     </a>
                   </div>
-                  <div class="invisible absolute z-50 flex w-full flex-col bg-gray-100 py-1 px-4 text-gray-800 shadow-xl group-hover:visible">
-                    Help
+                  <div class="invisible absolute z-50 !p-6 !pl-10 w-2xs bg-gray-100 text-gray-800 shadow-xl group-hover:visible">
+                    <strong>Help</strong>
+                    <ul className="list-disc">
+                      <li>To use subheadings, prefix your line with: "# ".</li>
+                      <li>
+                        To use subsubheadings, prefix your line with: "## ".
+                      </li>
+                      <li>
+                        A new line can be inserted just by pressing "Enter".
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
