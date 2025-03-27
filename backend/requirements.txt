@@ -3,8 +3,7 @@ uvicorn[standard]
 pymongo[srv]
 motor
 openai
-pinecone-client
+pinecone
 python-dotenv
 pydantic
-os
 dotenv

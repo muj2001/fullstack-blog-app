@@ -10,23 +10,48 @@ import CreateArticle from "./CreateArticle";
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    const controller = new AbortController();
     async function fetchArticles() {
       setIsLoading(true);
-      const res = await fetch(
-        `http://${import.meta.env.VITE_HOST}:${
+      let url = "";
+      if (query) {
+        url = `http://${import.meta.env.VITE_HOST}:${
           import.meta.env.VITE_PORT
-        }/articles/`
-      );
+        }/articles/search/?query=${query}`;
+      } else {
+        url = `http://${import.meta.env.VITE_HOST}:${
+          import.meta.env.VITE_PORT
+        }/articles/`;
+      }
+      const res = await fetch(url, { signal: controller.signal });
       const data = await res.json();
-      setArticles(data);
+      if (query) {
+        setArticles(() => {
+          return data.results.map((result) => {
+            return { ...result, id: result.id };
+          });
+        });
+      } else {
+        setArticles(data);
+      }
+      console.log(data);
       setIsLoading(false);
     }
 
     fetchArticles();
-  }, []);
+
+    return function () {
+      controller.abort();
+    };
+  }, [query]);
+
+  function handleQueryChange(e) {
+    setQuery(e.target.value);
+  }
 
   function handleSelect(id) {
     navigate(`/articles/${id}`);
@@ -60,11 +85,11 @@ export default function ArticleList() {
 
   return (
     <>
+      <UIBar onQueryChange={handleQueryChange} />
       {isLoading ? (
         <Loader />
       ) : (
         <>
-          <UIBar />
           <div className="!mx-auto min-h-fit grid max-w-2xl grid-cols-3 gap-x-8 gap-y-16 border-t border-gray-200 !pb-8 !pt-4 lg:!mx-0 lg:max-w-none">
             <CreateArticle />
             {articles.map((article) => (

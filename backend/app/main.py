@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import openai
 import os
 from dotenv import load_dotenv
+from pinecone import Pinecone, ServerlessSpec
 
 load_dotenv()
 
@@ -13,6 +14,26 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 client = openai.OpenAI()
 
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"), environment="us-east-1")
+
+index_name = "blogproject"
+
+# Check if the index already exists
+existing_indexes = [index["name"] for index in pc.list_indexes()]
+
+if index_name not in existing_indexes:
+    # Create the index with the required 'spec' argument
+    pc.create_index(
+        name=index_name,
+        dimension=1536,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1")  # Adjust cloud/region as needed
+    )
+    print(f"Index '{index_name}' created successfully.")
+else:
+    print(f"Index '{index_name}' already exists.")
+
+index = pc.Index(index_name)  # Initialize the index
 
 app = FastAPI()
 
@@ -33,6 +54,9 @@ app.add_middleware(
 class Article(BaseModel):
     title: str
     content: str
+
+class ArticleEmbeddingRequest(BaseModel):
+    id: str
 
 @app.get("/articles/")
 async def get_articles():
@@ -93,3 +117,64 @@ async def get_article_summary(id: str):
         except:
             raise HTTPException(status_code=500, detail="Summary functionality not working (Check if OpenAI Limit has been exceeded).")
     raise HTTPException(status_code=404, detail="Article not found")
+
+@app.post("/articles/{id}/embed")
+async def generate_embeddings(id: str):
+    article = await articles_collection.find_one({"_id": ObjectId(id)})
+    
+    if not article:
+        return {"error": "Article not found"}
+
+    # Convert ObjectId to a string
+    article["_id"] = str(article["_id"])
+
+    response = client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=article["content"]  # Pass only the content, not the entire document
+    )
+
+    embedding = response.data[0].embedding
+    index.upsert([(id, embedding)])
+
+    return response
+
+@app.get("/articles/search/")
+async def search_article(query: str):
+    response = client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=query
+    )
+    # return response
+    query_embedding = response.data[0].embedding
+
+    # Search in Pinecone
+    search_results = index.query(vector=query_embedding, top_k=5, include_metadata=False)
+    # return search_results["matches"]
+
+    # Extract article IDs from search results
+    matches = [
+        {"id": match["id"], "score": match["score"]}
+        for match in search_results["matches"]
+    ]
+
+    print(matches)
+
+    # Fetch articles from MongoDB
+    article_ids = [ObjectId(match["id"]) for match in matches]
+    articles = await articles_collection.find({"_id": {"$in": article_ids}}).to_list()
+
+    # Convert ObjectId to string and attach similarity scores
+    articles_with_scores = []
+    for article in articles:
+        article["_id"] = str(article["_id"])
+        # Attach similarity score by matching IDs
+        for match in matches:
+            if match["id"] == article["_id"]:
+                article["score"] = match["score"]
+                break
+        articles_with_scores.append(article)
+
+    # **Sort articles by similarity score (descending)**
+    articles_with_scores.sort(key=lambda x: x["score"], reverse=True)
+
+    return {"query": query, "results": articles_with_scores}
