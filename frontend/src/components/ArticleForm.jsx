@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from "./Loader";
+import questionIcon from "../assets/icons/question_icon.svg";
 
 export default function ArticleForm() {
   const navigate = useNavigate();
@@ -90,7 +91,22 @@ export default function ArticleForm() {
                 setTitle(e.target.value);
               }}
             ></input>
-            <div className="flex gap-x-4">
+            <div className="flex gap-x-4 items-center">
+              <div class="mx-auto flex items-center justify-center">
+                <div class="group relative cursor-pointer py-2">
+                  <div class="flex items-center justify-between space-x-5">
+                    <a
+                      class="menu-hover my-2 py-2 text-base font-medium text-black lg:mx-4"
+                      onClick=""
+                    >
+                      <img src={questionIcon} />
+                    </a>
+                  </div>
+                  <div class="invisible absolute z-50 flex w-full flex-col bg-gray-100 py-1 px-4 text-gray-800 shadow-xl group-hover:visible">
+                    Help
+                  </div>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={handleSubmit}

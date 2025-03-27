@@ -11,6 +11,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
+client = openai.OpenAI()
 
 
 app = FastAPI()
@@ -68,20 +69,27 @@ async def delete_article(id: str):
     return {"message": "Article deleted successfully"}
 
 @app.post("/articles/{id}/summarize")
-async def get_article_summary(article: Article):
-    article = article.dict()
-    messages = [
-        {"role": "user",
-         "content": """As a content summarizer, generate the a short summary from the content provided to you' \n"""},
-    ]
-    messages.append({
-            "role": "user",
-            "content": f"{article["content"]}"
-        }
-    )
-    completion = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=messages
-    )
-    reply = completion.choices[0].message.content
-    return {reply}
+async def get_article_summary(id: str):
+    article = await articles_collection.find_one({"_id": ObjectId(id)})
+    print(article)
+    if article:
+        messages = [
+            {
+                "role": "user",
+                "content": "As a content summarizer, generate a short summary from the content provided to you.\n",
+            },
+            {
+                "role": "user",
+                "content": article["content"],
+            },
+        ]
+        try:
+            completion = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages
+            )
+            reply = completion.choices[0].message.content
+            return {"summary": reply}
+        except:
+            raise HTTPException(status_code=500, detail="Summary functionality not working (Check if OpenAI Limit has been exceeded).")
+    raise HTTPException(status_code=404, detail="Article not found")
