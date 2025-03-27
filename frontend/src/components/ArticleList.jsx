@@ -13,6 +13,7 @@ export default function ArticleList() {
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
+  const [timeoutID, setTimeoutID] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,7 +62,8 @@ export default function ArticleList() {
   }, [query]);
 
   function handleQueryChange(e) {
-    setQuery(e.target.value);
+    clearTimeout(timeoutID);
+    setTimeoutID(setTimeout(() => setQuery(e.target.value), 1000));
   }
 
   function handleSelect(id) {
@@ -85,6 +87,7 @@ export default function ArticleList() {
       );
       if (res.ok) {
         const data = await res.json();
+        console.log(data);
         setArticles((articles) =>
           articles.map((article) =>
             article["_id"] === data["_id"] ? data : article
