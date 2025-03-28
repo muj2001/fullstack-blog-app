@@ -26,13 +26,13 @@ export default function ArticleList() {
       try {
         let url = "";
         if (query) {
-          url = `http://${import.meta.env.VITE_HOST}:${
-            import.meta.env.VITE_PORT
+          url = `http://${import.meta.env.VITE_HOST || "localhost"}:${
+            import.meta.env.VITE_PORT || "8000"
           }/articles/search/?query=${query}`;
           res = await fetch(url, { signal: controller.signal });
         } else {
-          url = `http://${import.meta.env.VITE_HOST}:${
-            import.meta.env.VITE_PORT
+          url = `http://${import.meta.env.VITE_HOST || "localhost"}:${
+            import.meta.env.VITE_PORT || "8000"
           }/articles/`;
           res = await fetch(url);
         }
@@ -78,8 +78,8 @@ export default function ArticleList() {
     async function postEmbed() {
       console.log("HERE");
       const res = await fetch(
-        `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
+        `http://${import.meta.env.VITE_HOST || "localhost"}:${
+          import.meta.env.VITE_PORT || "8000"
         }/articles/${id}/embed`,
         {
           method: "POST",
@@ -103,8 +103,8 @@ export default function ArticleList() {
     console.log(id);
     async function deleteArticle() {
       const res = await fetch(
-        `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
+        `http://${import.meta.env.VITE_HOST || "localhost"}:${
+          import.meta.env.VITE_PORT || "8000"
         }/articles/${id}`,
         {
           method: "DELETE",

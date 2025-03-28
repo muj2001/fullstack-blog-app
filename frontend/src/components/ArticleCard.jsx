@@ -24,8 +24,8 @@ export default function ArticleCard({
         setIsLoading(true);
         setIsOpen(true);
         const res = await fetch(
-          `http://${import.meta.env.VITE_HOST}:${
-            import.meta.env.VITE_PORT
+          `http://${import.meta.env.VITE_HOST || "localhost"}:${
+            import.meta.env.VITE_PORT || "8000"
           }/articles/${id}/summarize`,
           {
             method: "POST",

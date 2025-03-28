@@ -13,8 +13,8 @@ export default function Article() {
     async function fetchArticle() {
       setIsLoading(true);
       const res = await fetch(
-        `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
+        `http://${import.meta.env.VITE_HOST || "localhost"}:${
+          import.meta.env.VITE_PORT || "8000"
         }/articles/${id}`
       );
       const data = await res.json();

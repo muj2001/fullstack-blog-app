@@ -14,8 +14,8 @@ export default function ArticleForm() {
     async function fetchArticle() {
       setIsLoading(true);
       const res = await fetch(
-        `http://${import.meta.env.VITE_HOST}:${
-          import.meta.env.VITE_PORT
+        `http://${import.meta.env.VITE_HOST || "localhost"}:${
+          import.meta.env.VITE_PORT || "8000"
         }/articles/${id}`
       );
       const data = await res.json();
@@ -37,8 +37,8 @@ export default function ArticleForm() {
     async function postArticle() {
       if (id) {
         const res = await fetch(
-          `http://${import.meta.env.VITE_HOST}:${
-            import.meta.env.VITE_PORT
+          `http://${import.meta.env.VITE_HOST || "localhost"}:${
+            import.meta.env.VITE_PORT || "8000"
           }/articles/${id}`,
           {
             method: "PUT",
@@ -54,8 +54,8 @@ export default function ArticleForm() {
         }
       } else {
         const res = await fetch(
-          `http://${import.meta.env.VITE_HOST}:${
-            import.meta.env.VITE_PORT
+          `http://${import.meta.env.VITE_HOST || "localhost"}:${
+            import.meta.env.VITE_PORT || "8000"
           }/articles/`,
           {
             method: "POST",

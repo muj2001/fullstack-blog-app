@@ -10,11 +10,11 @@ from pinecone import Pinecone, ServerlessSpec
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "Your_API_key")
 openai.api_key = OPENAI_API_KEY
 
 client = openai.OpenAI()
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"), environment="us-east-1")
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY", "Your_API_key"), environment="us-east-1")
 existing_indexes = [index["name"] for index in pc.list_indexes()]
 
 index_name = "blogproject"
@@ -31,7 +31,6 @@ if index_name not in existing_indexes:
 else:
     print(f"Index '{index_name}' already exists.")
 
-index = pc.Index(index_name)  # Initialize the index
 
 
 
@@ -143,6 +142,7 @@ async def get_article_summary(id: str):
 @app.post("/articles/{id}/embed")
 async def generate_embeddings(id: str):
     if articles_collection is not None:
+
         article = await articles_collection.find_one({"_id": ObjectId(id)})
         
         if not article:
@@ -153,25 +153,22 @@ async def generate_embeddings(id: str):
         # article["_id"] = str(article["_id"])
 
         try:
+            index = pc.Index(index_name)  # Initialize the index
             response = client.embeddings.create(
                 model="text-embedding-ada-002",
                 input=article["content"]  # Pass only the content, not the entire document
             )
+            embedding = response.data[0].embedding
+            index.upsert([(id, embedding)])
+            await articles_collection.update_one(
+                {"_id": ObjectId(id)},
+                {"$set": article}
+            )
+            article["_id"] = str(article["_id"])
+
+            return article
         except:
             raise HTTPException(status_code=408, detail="Summary functionality not working (Check if OpenAI Limit has been exceeded).")
-        
-        embedding = response.data[0].embedding
-        index.upsert([(id, embedding)])
-
-        await articles_collection.update_one(
-            {"_id": ObjectId(id)},
-            {"$set": article}
-        )
-
-
-        article["_id"] = str(article["_id"])
-
-        return article
     else:
          raise HTTPException(status_code=408, detail="Connection Timeout")
        
@@ -179,6 +176,8 @@ async def generate_embeddings(id: str):
 async def search_article(query: str):
     if articles_collection is not None:
         try:
+            index = pc.Index(index_name)  # Initialize the index
+
             response = client.embeddings.create(
                 model="text-embedding-ada-002",
                 input=query
